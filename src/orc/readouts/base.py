@@ -12,8 +12,8 @@ class ReadoutBase(eqx.Module, ABC):
     Base class dictating API for all implemented readout layers.
 
     Methods:
-        readout(res_state)
-        batch_readout(res_state)
+    readout(res_state)
+    batch_readout(res_state)
     """
 
     @abstractmethod
@@ -37,7 +37,7 @@ class ReadoutBase(eqx.Module, ABC):
         """Batch apply readout from reservoir states.
 
         Args:
-            res_state (Array): reservoir state (shape=(batch_dim, res_dim,))
+        res_state (Array): reservoir state (shape=(batch_dim, res_dim,))
         
         Returns:
         ----------

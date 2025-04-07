@@ -14,14 +14,14 @@ class ESN(eqx.Module):
     """Basic implementation of ESN for forecasting.
 
     Attributes:
-        res (ESNReservoir): esn driver
-        read (LinearReadout): linear readout layer
-        state_dim (int): input/output dimension of reservoir
-        res_dim (int): reservoir dimension
+    res (ESNReservoir): esn driver
+    read (LinearReadout): linear readout layer
+    state_dim (int): input/output dimension of reservoir
+    res_dim (int): reservoir dimension
     
     Methods:
-        force(in_seq, res_state) -> sequence of reservoir states
-        forecast(fcast_len, res_state) -> forecasted output states
+    force(in_seq, res_state) -> sequence of reservoir states
+    forecast(fcast_len, res_state) -> forecasted output states
     """
     res: ESNReservoir
     read: LinearReadout

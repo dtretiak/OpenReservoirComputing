@@ -13,12 +13,12 @@ class LinearReadout(ReadoutBase):
     """Linear readout layer.
 
     Attributes:
-        out_dim (int): reservoir output dimension
-        res_dim (int): reservoir dimension
-        w_or (Array): output matrix
+    out_dim (int): reservoir output dimension
+    res_dim (int): reservoir dimension
+    w_or (Array): output matrix
 
     Methods:
-        readout(res_state) -> output state
+    readout(res_state) -> output state
     """
     out_dim: int
     res_dim: int
@@ -36,8 +36,8 @@ class LinearReadout(ReadoutBase):
         """Initialize readout layer to zeros.
         
         Args:
-            out_dim (int): reservoir output dimension
-            res_dim (int): reservoir dimension
+        out_dim (int): reservoir output dimension
+        res_dim (int): reservoir dimension
         """
         self.out_dim = out_dim
         self.res_dim = res_dim
@@ -50,9 +50,9 @@ class LinearReadout(ReadoutBase):
         """Readout from reservoir state.
         
         Args:
-            res_state (Array): reservoir state (shape=(res_dim,))
+        res_state (Array): reservoir state (shape=(res_dim,))
 
         Returns:
-            (Array): output from reservoir (shape=(out_dim,))
+        (Array): output from reservoir (shape=(out_dim,))
         """
         return self.w_or @ res_state

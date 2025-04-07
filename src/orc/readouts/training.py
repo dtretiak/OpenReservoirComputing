@@ -19,13 +19,13 @@ def train_linear(read: LinearReadout,
     """Train a LinearReadout layer.
 
     Args: 
-        res_seq (Array): reservoir sequence (shape=(seq_len, res_dim,))
-        targets (Array): target data (shape=(seq_len, out_dim,))
-        spinup (int): initial transient to discard
-        beta (float): Tikhonov regularization parameter
+    res_seq (Array): reservoir sequence (shape=(seq_len, res_dim,))
+    targets (Array): target data (shape=(seq_len, out_dim,))
+    spinup (int): initial transient to discard
+    beta (float): Tikhonov regularization parameter
 
     Returns:
-        read (LinearReadout): trained LinearReadout model
+    read (LinearReadout): trained LinearReadout model
     """
     lhs = (res_seq[spinup:].T @ res_seq[spinup:] 
             + beta * jnp.eye(read.res_dim, dtype=read.dtype))

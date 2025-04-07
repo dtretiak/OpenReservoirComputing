@@ -13,19 +13,19 @@ class ESNReservoir(ReservoirBase):
     """Standard implementation of ESN reservoir with tanh nonlinearity.
 
     Attributes:
-        in_dim (int): reservoir input dimension
-        res_dim (int): reservoir dimension
-        w_rr (Array): reservoir update matrix (shape=(res_dim, res_dim,))
-        w_ri (Array): input matrix (shape=(res_dim, in_dim,))
-        alpha (float): leak rate parameter
-        rho_sr (float): spectral radius of w_rr
-        rho_A (float): density of w_rr
-        sigma (float): entries of w_ri drawn from U(sigma, sigma)
-        sigma_b (float): additive bias in tanh nonlinearity
-        dtype (Float): dtype, default jnp.float64
+    in_dim (int): reservoir input dimension
+    res_dim (int): reservoir dimension
+    w_rr (Array): reservoir update matrix (shape=(res_dim, res_dim,))
+    w_ri (Array): input matrix (shape=(res_dim, in_dim,))
+    alpha (float): leak rate parameter
+    rho_sr (float): spectral radius of w_rr
+    rho_A (float): density of w_rr
+    sigma (float): entries of w_ri drawn from U(sigma, sigma)
+    sigma_b (float): additive bias in tanh nonlinearity
+    dtype (Float): dtype, default jnp.float64
 
     Methods:
-        advance(in_vars, res_state) -> updated reservoir state
+    advance(in_vars, res_state) -> updated reservoir state
     """
     in_dim: int
     res_dim: int
@@ -54,15 +54,15 @@ class ESNReservoir(ReservoirBase):
         """Initialize weight matrices.
 
         Arguments:
-            in_dim (int): reservoir input dimension
-            res_dim (int): reservoir dimension
-            alpha (float): leak rate parameter
-            rho_sr (float): spectral radius of w_rr
-            rho_w (float): density of w_rr
-            sigma (float): entries of w_ri drawn from U(-sigma, sigma)
-            sigma_b (float): additive bias in tanh nonlinearity
-            dtype (Float): dtype for model
-            key (PRNGKeyArray): random seed 
+        in_dim (int): reservoir input dimension
+        res_dim (int): reservoir dimension
+        alpha (float): leak rate parameter
+        rho_sr (float): spectral radius of w_rr
+        rho_w (float): density of w_rr
+        sigma (float): entries of w_ri drawn from U(-sigma, sigma)
+        sigma_b (float): additive bias in tanh nonlinearity
+        dtype (Float): dtype for model
+        key (PRNGKeyArray): random seed 
         """
         super().__init__()
         self.in_dim = in_dim
@@ -106,11 +106,11 @@ class ESNReservoir(ReservoirBase):
         """Advance the reservoir state.
 
         Arguments:
-            in_vars (Array): reservoir inputs (shape=(in_dim,))
-            res_state (Array): reservoir state (shape=(res_dim,))
+        in_vars (Array): reservoir inputs (shape=(in_dim,))
+        res_state (Array): reservoir state (shape=(res_dim,))
 
         Returns:
-            res_next (Array): reservoir state (shape=(res_dim,))
+        res_next (Array): reservoir state (shape=(res_dim,))
         """
         res_next = jnp.tanh(self.w_rr @ res_state
                             + self.w_ri @ in_vars

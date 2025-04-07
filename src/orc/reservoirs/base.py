@@ -13,8 +13,8 @@ class ReservoirBase(eqx.Module, ABC):
     Base class dictating API for all implemented reservoirs.
 
     Methods:
-        advance(in_vars, res_state)
-        batch_advance(in_vars, res_state)
+    advance(in_vars, res_state)
+    batch_advance(in_vars, res_state)
     """
 
     @abstractmethod
@@ -25,8 +25,8 @@ class ReservoirBase(eqx.Module, ABC):
         """Advance the reservoir given inputs and current state.
 
         Args:
-            in_vars (Array): inputs to reservoir (shape=(in_dim,))
-            res_state (Array): reservoir state (shape=(res_dim,))
+        in_vars (Array): inputs to reservoir (shape=(in_dim,))
+        res_state (Array): reservoir state (shape=(res_dim,))
         
         Returns:
         ----------
@@ -41,12 +41,12 @@ class ReservoirBase(eqx.Module, ABC):
         """Batch advance the reservoir given inputs and current state.
 
         Args:
-            in_vars (Array): reservoir inputs
-                (shape=(batch_size, in_dim,))
-            res_state (Array): reservoir state
-                (shape=(batch_size, res_dim,))
+        in_vars (Array): reservoir inputs
+            (shape=(batch_size, in_dim,))
+        res_state (Array): reservoir state
+            (shape=(batch_size, res_dim,))
         
         Returns:
-            (Array): updated reservoir state (shape=(batch_size, res_dim,))
+        (Array): updated reservoir state (shape=(batch_size, res_dim,))
         """
         return eqx.filter_vmap(self.advance)(in_vars, res_state)
