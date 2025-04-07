@@ -1,30 +1,26 @@
-"""Basic ESN model for forecasting."""
-
 import equinox as eqx
 import jax
+import jax.numpy as jnp
 from jaxtyping import Array, PRNGKeyArray, Float
-
-from orc.readouts.layers import LinearReadout
-from orc.readouts.training import train_linear
-from orc.reservoirs.drivers import ESNReservoir
+from orc.readouts import LinearReadout
+from orc.drivers import ESNDriver
+from orc.embeddings import LinearEmbedding
 
 jax.config.update("jax_enable_x64", True)
 
 class ESN(eqx.Module):
     """Basic implementation of ESN for forecasting.
-
-    Attributes:
-    res (ESNReservoir): esn driver
-    read (LinearReadout): linear readout layer
-    state_dim (int): input/output dimension of reservoir
-    res_dim (int): reservoir dimension
     
-    Methods:
-    force(in_seq, res_state) -> sequence of reservoir states
-    forecast(fcast_len, res_state) -> forecasted output states
+    driver (ESNDriver): class determining how reservoir is driven
+    readout (LinearReadout): trainable linear readout layer
+    embedding (LinearEmbedding): untrainable linear embedding layer
+    state_dim (int): input/output dimension
+    res_dim (int): reservoir dimension
+    dtype (Float): dtype of model, jnp.float64 or jnp.float32
     """
-    res: ESNReservoir
-    read: LinearReadout
+    driver: ESNDriver
+    readout: LinearReadout
+    embedding: LinearEmbedding
     state_dim: int
     res_dim: int
     dtype: Float
@@ -36,21 +32,13 @@ class ESN(eqx.Module):
                  key: PRNGKeyArray,
                  dtype=jax.numpy.float64
                  ) -> None:
-        """Initialize reservoir and readout modules.
-        
-        Args:
-        res (ESNReservoir): reservoir layer
-        read (LinearReadout): readout layer
-        state_dim (int): input/output dimension of reservoir
-        res_dim (int): reservoir dimension
-        key (PRNGKeyArray)
-        """
         self.state_dim = state_dim
         self.res_dim = res_dim
 
-        reskey, readkey = jax.random.split(key)
-        self.res = ESNReservoir(state_dim, res_dim, key=reskey)
-        self.read = LinearReadout(state_dim, res_dim, key=readkey)
+        driverkey, readoutkey, embeddingkey = jax.random.split(key, 3)
+        self.driver = ESNDriver(res_dim=res_dim, key=driverkey)
+        self.readout = LinearReadout(state_dim, res_dim, key=readoutkey)
+        self.embedding = LinearEmbedding(state_dim, res_dim, scaling= 0.084, key=embeddingkey)
 
         self.dtype = dtype
 
@@ -70,10 +58,9 @@ class ESN(eqx.Module):
         Returns:
         res_seq (Array): forced reservoir sequence (shape=(seq_len, res_dim))
         """
-
-
         def scan_fn(state, in_vars):
-            res_state = self.res.advance(in_vars, state)
+            proj_vars = self.embedding.embed(in_vars)
+            res_state = self.driver.advance(proj_vars, state)
             return (res_state, res_state)
         
         _, res_seq = jax.lax.scan(scan_fn, res_state, in_seq)
@@ -83,7 +70,7 @@ class ESN(eqx.Module):
     def forecast(self,
                  fcast_len: int,
                  res_state: Float[Array, "{self.res_dim}"]
-                 ) -> Float[Array, "fcast_len {self.state_dim}"]:
+                 ) -> Float[Array, "fcast_len {self.state_dim}"]:       
         """Forecast from an initial reservoir state.
 
         Args:
@@ -94,24 +81,27 @@ class ESN(eqx.Module):
         seq_states: forecasted states (shape=(fcast_len, state_dim))
         """
         def scan_fn(state, _):
-
-            out_state = self.res.advance(self.read.readout(state), state)
-            return (out_state, self.read.readout(out_state))
+            out_state = self.driver.advance(
+                self.embedding.embed(self.readout.readout(state)),
+                state
+                )
+            return (out_state, self.readout.readout(out_state))
 
         _, state_seq = jax.lax.scan(scan_fn, 
                                      res_state, 
                                      None, 
                                      length=fcast_len)
         return state_seq
-    
-def train(model: ESN,
+
+
+def train_ESN(model: ESN,
           in_seq: Float[Array, "... {model.state_dim}"],
           res_state: Float[Array, "{model.res_dim}"],
           targets: Float[Array, "... {model.state_dim}"],
           spinup: int,
           beta: float = 8e-8
           ) -> ESN:
-    """Wrapper for training a LinearReadout layer.
+    """Training function for ESN forecaster.
     
     Args:
     model (ESN): ESN to train
@@ -126,7 +116,10 @@ def train(model: ESN,
     """
 
     res_seq = model.force(in_seq, res_state)
-    read = train_linear(model.read, res_seq, targets, spinup, beta)
-    where = lambda m: m.read
-    model = eqx.tree_at(where, model, read)
+    lhs = (res_seq[spinup:].T @ res_seq[spinup:] 
+            + beta * jnp.eye(model.res_dim, dtype=model.dtype))
+    rhs = res_seq[spinup:].T @ targets[spinup:]
+    cmat = jnp.linalg.lstsq(lhs, rhs, rcond=None)[0].T
+    where = lambda m: m.readout.wout
+    model = eqx.tree_at(where, model, cmat)
     return model
