@@ -17,13 +17,17 @@ class DriverBase(eqx.Module, ABC):
 
     Attributes
     ----------
-    res_dim (int): reservoir dimensionxe
-    dtype (Float): jnp.float64 or jnp.float32
+    res_dim : int
+        Reservoir dimensionxe
+    dtype : Float
+        Dtype for model, jnp.float64 or jnp.float32.
 
     Methods
     -------
     advance(proj_vars, res_state)
+        Advance reservoir according to proj_vars.
     batch_advance(proj_vars, res_state)
+        Advance batch of reservoir states according to proj_vars.
     """
 
     res_dim: int
@@ -42,13 +46,17 @@ class DriverBase(eqx.Module, ABC):
     def advance(self, proj_vars: Array, res_state: Array) -> Array:
         """Advance the reservoir given projected inputs and current state.
 
-        Args:
-        proj_vars (Array): projectred inputs to reservoir (shape=(res_dim,))
-        res_state (Array): reservoir state (shape=(res_dim,))
+        Parameters
+        ----------
+        proj_vars : Array
+            Projected inputs to reservoir, (shape=(res_dim,)).
+        res_state : Array
+            Initial reservoir state, (shape=(res_dim,)).
 
         Returns
         -------
-        (Array): updated reservoir state (shape=(res_dim,))
+        Array
+            Updated reservoir state, (shape=(res_dim,)).
         """
         pass
 
@@ -56,15 +64,17 @@ class DriverBase(eqx.Module, ABC):
         """
         Batch advance the reservoir given projected inputs and current state.
 
-        Args:
-        proj_vars (Array): reservoir projected inputs
-            (shape=(batch_size, res_dim,))
-        res_state (Array): reservoir state
-            (shape=(batch_size, res_dim,))
+        Parameters
+        ----------
+        proj_vars : Array
+            Reservoir projected inputs, (shape=(batch_size, res_dim,)).
+        res_state : Array
+            Reservoir state, (shape=(batch_size, res_dim,)).
 
         Returns
         -------
-        (Array): updated reservoir state (shape=(batch_size, res_dim,))
+        Array
+            Updated reservoir state, (shape=(batch_size, res_dim,)).
         """
         return eqx.filter_vmap(self.advance)(proj_vars, res_state)
 
@@ -74,13 +84,20 @@ class ESNDriver(DriverBase):
 
     Attributes
     ----------
-    res_dim (int): reservoir dimension
-    wr (Array): reservoir update matrix (shape=(res_dim, res_dim,))
-    leak (float): leak rate parameter
-    spec_rad (float): spectral radius of wr
-    density (float): density of wr
-    bias (float): additive bias in tanh nonlinearity
-    dtype (Float): dtype, default jnp.float64
+    res_dim : int
+        Reservoir dimension.
+    wr : Array
+        Reservoir update matrix, (shape=(res_dim, res_dim,)).
+    leak : float
+        Leak rate parameter.
+    spec_rad : float
+        Spectral radius of wr.
+    density : float
+        Density of wr.
+    bias : float
+        Additive bias in tanh nonlinearity.
+    dtype : Float
+        Dtype, default jnp.float64.
 
     Methods
     -------
@@ -108,14 +125,22 @@ class ESNDriver(DriverBase):
     ) -> None:
         """Initialize weight matrices.
 
-        Arguments:
-        res_dim (int): reservoir dimension
-        leak (float): leak rate parameter
-        spec_rad (float): spectral radius of wr
-        density (float): density of wr
-        bias (float): additive bias in tanh nonlinearity
-        dtype (Float): dtype for model
-        key (PRNGKeyArray): random seed
+        Parameters
+        ----------
+        res_dim : int
+            Reservoir dimension.
+        leak : float
+            Leak rate parameter.
+        spec_rad : float
+            Spectral radius of wr.
+        density : float
+            Density of wr.
+        bias : float
+            Additive bias in tanh nonlinearity.
+        dtype : Float
+            Dtype, default jnp.float64.
+        key : PRNGKeyArray
+            JAX random key.
         """
         super().__init__(res_dim=res_dim, dtype=dtype)
         self.res_dim = res_dim
@@ -146,13 +171,17 @@ class ESNDriver(DriverBase):
     def advance(self, proj_vars: Array, res_state: Array) -> Array:
         """Advance the reservoir state.
 
-        Arguments:
-        proj_vars (Array): reservoir projected inputs (shape=(res_dim,))
-        res_state (Array): reservoir state (shape=(res_dim,))
+        Parameters
+        ----------
+        proj_vars : Array
+            Reservoir projected inputs, (shape=(res_dim,)).
+        res_state : Array
+            Reservoir state, (shape=(res_dim,)).
 
         Returns
         -------
-        res_next (Array): reservoir state (shape=(res_dim,))
+        res_next : Array
+            Reservoir state, (shape=(res_dim,)).
         """
         res_next = jnp.tanh(
             self.wr @ res_state + proj_vars + self.bias * jnp.ones(self.res_dim)

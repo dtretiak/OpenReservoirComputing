@@ -89,14 +89,19 @@ class LinearEmbedding(EmbedBase):
 
     Attributes
     ----------
-    in_dim (int): reservoir output dimension
-    res_dim (int): reservoir dimension
-    scaling (float): min/max values of input matrix
-    win (Array): input matrix
+    in_dim : int
+        Reservoir output dimension.
+    res_dim : int
+        Reservoir dimension.
+    scaling : float
+        Min/max values of input matrix.
+    win : Array
+        Input matrix.
 
     Methods
     -------
-    embed(in_state) -> reservoir input
+    embed(in_state)
+        Embed input state to reservoir dimension.
     """
 
     in_dim: int
@@ -114,6 +119,21 @@ class LinearEmbedding(EmbedBase):
         *,
         key: PRNGKeyArray,
     ) -> None:
+        """Instantiate linear embedding.
+
+        Parameters
+        ----------
+        in_dim : int
+            Input dimension to reservoir.
+        res_dim : int
+            Reservoir dimension.
+        scaling : float
+            Min/max values of input matrix.
+        key : PRNGKeyArray
+            JAX key for initialization.
+        dtype : Float
+            Dtype of model, jnp.float64 or jnp.float32.
+        """
         super().__init__(in_dim=in_dim, res_dim=res_dim, dtype=dtype)
         self.in_dim = in_dim
         self.res_dim = res_dim

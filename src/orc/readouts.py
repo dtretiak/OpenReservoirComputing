@@ -94,6 +94,8 @@ class LinearReadout(ReadoutBase):
         Reservoir dimension.
     wout : Array
         output matrix
+    dtype : Float
+            Dtype, default jnp.float64.
 
     Methods
     -------
@@ -122,6 +124,10 @@ class LinearReadout(ReadoutBase):
             Dimension of reservoir output.
         res_dim : int
             Reservoir dimension.
+        dtype : Float
+            Dtype, default jnp.float64.
+        key : PRNGKeyArray
+            JAX random key.
         """
         super().__init__(out_dim=out_dim, res_dim=res_dim, dtype=dtype)
         self.out_dim = out_dim

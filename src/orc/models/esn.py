@@ -53,6 +53,19 @@ class ESN(eqx.Module):
         key: PRNGKeyArray,
         dtype=jax.numpy.float64,
     ) -> None:
+        """Initialize embedding, driver, and readout layers.
+
+        Parameters
+        ----------
+        state_dim : int
+            Input/output dimension of reservoir.
+        res_dim : int
+            Reservoir dimension.
+        key : PRNGKeyArray
+            JAX key for initialization.
+        dtype : Float
+            Dtype of model, jnp.float64 or jnp.float32.
+        """
         self.state_dim = state_dim
         self.res_dim = res_dim
 
