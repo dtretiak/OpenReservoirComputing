@@ -40,18 +40,6 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Data Science",
 ]
 
-[project.optional-dependencies]
-test = [
-    "pytest>=8.2.0",
-    "pytest-xdist",
-    "pytest-cases>=3.8.3",
-    "pytest-cov",
-    "cython>=3.0",
-    "coverage",
-    "pre-commit",
-]
-doc = ["matplotlib", "pypandoc", "sphinx"]
-dev = ["pyuvdata[all,test,doc]"]
 
 [project.urls]
 Repository = "https://github.com/dtretiak/OpenReservoirComputing"
