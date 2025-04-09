@@ -31,7 +31,7 @@ class DriverBase(eqx.Module, ABC):
             raise TypeError("Reservoir dimension res_dim must be an integer.")
         self.dtype = dtype
         if not (dtype == jnp.float64 or dtype == jnp.float32):
-            raise TypeError("dtype must be jnp.float64 of jnp.float32.")
+            raise TypeError("dtype must be jnp.float64 or jnp.float32.")
         
     @abstractmethod
     def advance(self,
