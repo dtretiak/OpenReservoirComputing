@@ -149,6 +149,13 @@ class ESNDriver(DriverBase):
         self.density = density
         self.bias = bias
         self.dtype = dtype
+
+        if spec_rad <= 0:
+            raise ValueError("Spectral radius must be positve.")
+        if leak < 0 or leak > 1:
+            raise ValueError("Leak rate must satisfy 0 < leak < 1.")
+        if density < 0 or density > 1:
+            raise ValueError("Density must satisfy 0 < density < 1.")
         wrkey1, wrkey2 = jax.random.split(key, 2)
 
         N_nonzero = int(res_dim**2 * density)
@@ -183,6 +190,8 @@ class ESNDriver(DriverBase):
         res_next : Array
             Reservoir state, (shape=(res_dim,)).
         """
+        if proj_vars.shape != (self.res_dim,) or res_state.shape != (self.res_dim,):
+            raise ValueError("proj_vars and res_state must both have shape (res_dim,).")
         res_next = jnp.tanh(
             self.wr @ res_state + proj_vars + self.bias * jnp.ones(self.res_dim)
         )

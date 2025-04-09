@@ -148,4 +148,8 @@ class LinearReadout(ReadoutBase):
         Array
             Output from reservoir, (shape=(out_dim,)).
         """
+        if res_state.shape[0] != self.res_dim:
+            raise ValueError(
+                "Incorrect reservoir dimension for instantiated output map."
+            )
         return self.wout @ res_state

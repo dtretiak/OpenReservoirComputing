@@ -156,4 +156,8 @@ class LinearEmbedding(EmbedBase):
         Array
             Embedded input to reservoir, (shape=(res_dim,)).
         """
+        if in_state.shape[0] != self.in_dim:
+            raise ValueError(
+                "Incorrect input dimension for instantiated embedding map."
+            )
         return self.win @ in_state
